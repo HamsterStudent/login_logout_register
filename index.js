@@ -16,8 +16,9 @@ app.get('/', (req, res) => {
 })
 //익스프레스 앱을 넣은 후에, 루트 디렉토리에 오면 Hello World라는 것을 출력되게 하기.
 //function(req, res){} 형식도 되나, 간편하게 하기 위해 화살표함수로 사용한듯...
+// app.get('/', function(req, res){ res.send('Hello World!')}) //function형식
 
 app.listen(port, () => {
-  console.log(`Enterprise starship landing on port ${port}`)
+  console.log(`Starship enterprise landing on port ${port}`)
 })
 //위에서 지정한 포트에서 앱을 실행되게 하는 것. 앱이 포트의 응답을 들으면 콘솔이 터미널에 프린트
