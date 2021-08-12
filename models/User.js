@@ -1,4 +1,6 @@
 const mongoose = require('mongoose'); //몽구스 불러오기
+const bcrypt = require('bcrypt');
+const saltRounds = 10
 
 const userSchema = mongoose.Schema({
     name: {
@@ -30,6 +32,39 @@ const userSchema = mongoose.Schema({
         type: Number
     }
 })
+
+
+//몽구스에서 가져온 메소드. user.save하기 전에 비밀번호를 암호화
+userSchema.pre('save', function( next ){
+    var user = this;
+    //이 위의 정보들을 나타냄. user.password는 이 정보들 중의 패스워드 부분을 나타냄
+
+    //비밀번호가 변했을 때에만 비밀번호를 암호화
+    if(user.isModified('password')){
+
+        //비밀번호를 암호화 시킴
+        bcrypt.genSalt(saltRounds, function(err, salt){
+
+            if(err) return next(err)
+            //에러가 나면 err로 보내주기
+
+            bcrypt.hash(user.password, salt, function(err, hash){
+                //hash는 암호화된 비밀번호를 나타냄
+
+                if(err) return next(err)
+                //에러가 나면 err로 보내주기
+
+                user.password = hash
+
+                next()
+                //다시 index.js의 save로 보내기
+            })
+        })
+    }
+    
+})
+
+
 
 const User = mongoose.model('User', userSchema) //스키마를 모델로 감싸기
 
