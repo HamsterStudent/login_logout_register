@@ -2,6 +2,9 @@ const express = require('express') //express 모듈을 가져오기
 const app = express() //새로운 function을 이용해서 새로운 express app을 만들기
 const port = 2241 //포트 번호는 아무렇게나 해도 됨.
 const bodyParser = require('body-parser'); //body-parser를 가져오기. 옵션 설정이 조금 필요함
+
+const config = require('./config/key')
+
 const { User } = require("./models/User");
 //회원가입 데이터 수집 위해 User모델을 가져오기
 
@@ -11,7 +14,7 @@ app.use(bodyParser.json()); //application/json 타입으로 된 데이터를 분
 
 const mongoose = require('mongoose') //mongoose 모듈을 가져오기
 
-mongoose.connect('mongodb+srv://chekov2241:22412222@coconut.lcm3e.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect(config.mongoURI, {
     useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false //이 항목들을 입력해야 에러가 안남
 }).then(()=> console.log('MongoDB Connected...')) //연결되면 콘솔창에 연결된다고 뜬다
     .catch(err => console.log(err)) //연결된 게 아니라면 콘솔창에 에러를 보여주기
@@ -19,11 +22,12 @@ mongoose.connect('mongodb+srv://chekov2241:22412222@coconut.lcm3e.mongodb.net/my
 
 
 app.get('/', (req, res) => {
-  res.send('Hello World! Good Day')
+  res.send('Hello World!')
 })
 //익스프레스 앱을 넣은 후에, 루트 디렉토리에 오면 Hello World라는 것을 출력되게 하기.
 //function(req, res){} 형식도 되나, 간편하게 하기 위해 화살표함수로 사용한듯...
 // app.get('/', function(req, res){ res.send('Hello World!')}) //function형식
+
 
 //회원가입 라우트
 app.post('/register', (req, res) => {
