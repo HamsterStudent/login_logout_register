@@ -2,6 +2,7 @@ const express = require('express') //express 모듈을 가져오기
 const app = express() //새로운 function을 이용해서 새로운 express app을 만들기
 const port = 2241 //포트 번호는 아무렇게나 해도 됨.
 const bodyParser = require('body-parser'); //body-parser를 가져오기. 옵션 설정이 조금 필요함
+const cookieParser = require('cookie-parser') //cookie-parser를 가져오기. 토큰을 쿠키에 저장하기 위해 필요함
 
 const config = require('./config/key')
 
@@ -11,6 +12,8 @@ const { User } = require("./models/User");
 //클라이언트에서 오는 정보를 서버에서 분석해서 가져올 수 있게. body-parser 설정
 app.use(bodyParser.urlencoded({extended: true})); //application/x-www-form-urlencoded 타입으로 된 데이터를 분석해서 가져올 수 있게.
 app.use(bodyParser.json()); //application/json 타입으로 된 데이터를 분석해서 가져올 수 있게
+
+app.use(cookieParser()); //cookie-parser를 사용할 수 있게 함
 
 const mongoose = require('mongoose') //mongoose 모듈을 가져오기
 
@@ -44,6 +47,50 @@ app.post('/register', (req, res) => {
       success: true
     })
   })
+})
+
+//로그인 라우트
+app.post('/login', (req, res) =>{
+
+  //요청된 이메일을 데이터베이스에서 찾는다.
+  User.findOne({ email: req.body.email }, (err, user) => {
+    //findOne : mongoDB에서 제공하는 메소드
+    if(!user){
+      return res.json({ //유저인포에 해당하는 유저가 없을 시에 출력할 것들
+      loginSuccess: false,
+      message: "제공된 이메일에 해당하는 유저가 없습니다."
+      })
+    }
+
+    //요청된 이메일이 데이터베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인
+    user.comparePassword( req.body.password, ( err, isMatch ) => { //callback function. 에러가 나면 err, 맞다면 isMatch로 맞다는 걸 가져오기
+      //req.body.password는 plain password를 나타냄
+      if(!isMatch)
+      return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다."})
+
+      //비밀번호까지 맞다면 토큰을 생성하기
+      user.generateToken((err, user) => {
+        if(err) return res.status(400).send(err);
+        //에러가 발생하면 에러를 클라이언트에 전송.에러메시지 전달
+        //400은 에러가 발생했다는 메시지
+        
+        //토큰을 쿠키에 저장한다.
+        res.cookie("x_auth",user.token) //x_auth라는 곳에 토큰 출력?
+        .status(200) //200은 성공했다는 메시지
+        .json({ loginSuccess: true, userId: user._id})
+
+
+
+      })
+      //generateToken은 임의대로 이름 바꿀 수 있음
+
+
+    })
+
+  })
+  
+
+
 
 })
 

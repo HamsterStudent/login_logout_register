@@ -1,6 +1,7 @@
 const mongoose = require('mongoose'); //몽구스 불러오기
 const bcrypt = require('bcrypt');
 const saltRounds = 10
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
     name: {
@@ -60,12 +61,44 @@ userSchema.pre('save', function( next ){
                 //다시 index.js의 save로 보내기
             })
         })
+    }else {
+        next()
     }
     
 })
 
 
+//plainpassword와 암호화된 비밀번호가 같은지 체크
+userSchema.methods.comparePassword = function(plainPassword, cb){
+
+    //암호화된 비밀번호를 복호화할수는 없기 때문에 plainpassword를 암호화 해서 암호화된 비밀번호랑 같은지 체크해야함.
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+        if(err) return cb(err);
+
+        cb(null, isMatch);
+    })
+}
+
+userSchema.methods.generateToken = function(cb){
+    
+    var user = this;
+
+    //jsonwebtoken을 이용해서 토큰 생성
+    var token = jwt.sign(user._id.toHexString(), 'secretToken')
+
+    // user._id + 'secretToken' = token
+    //token을 해석할 때 'secretToken'을 넣으면 user._id가 나오는 거
+
+    user.token = token //유저 토큰은 var로 정의한 토큰을 넣어줌
+    user.save(function(err, user){ //유저를 저장한 후 함수 실행. 
+        if(err) return cb(err) //에러가 있다면 콜백으로 에러 전달
+        cb(null, user) //세이브가 잘 됐다면 에러는 없고(null) 유저 정보만 전달
+    })
+
+}
+
+
 
 const User = mongoose.model('User', userSchema) //스키마를 모델로 감싸기
 
-module.exports = {User} //모듈을 다른 곳에서도 쓸 수 있게 내보내기
+module.exports = { User } //모듈을 다른 곳에서도 쓸 수 있게 내보내기
