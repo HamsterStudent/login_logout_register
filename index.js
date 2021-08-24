@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser') //cookie-parser를 가져오기. �
 
 const config = require('./config/key')
 
+const { auth } = require("./middleware/auth")
 const { User } = require("./models/User");
 //회원가입 데이터 수집 위해 User모델을 가져오기
 
@@ -33,7 +34,7 @@ app.get('/', (req, res) => {
 
 
 //회원가입 라우트
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
 
   //회원가입 할 때 필요한 정보들을 client에서 가져오면, 그것들을 데이터베이스에 넣어준다.
 
@@ -50,7 +51,7 @@ app.post('/register', (req, res) => {
 })
 
 //로그인 라우트
-app.post('/login', (req, res) =>{
+app.post('/api/users/login', (req, res) =>{
 
   //요청된 이메일을 데이터베이스에서 찾는다.
   User.findOne({ email: req.body.email }, (err, user) => {
@@ -84,15 +85,30 @@ app.post('/login', (req, res) =>{
       })
       //generateToken은 임의대로 이름 바꿀 수 있음
 
-
     })
-
   })
-  
+})
 
 
+//Auth기능
+app.get('/api/users/auth', auth ,(req, res) => {
+
+  //여기까지 미들웨어를 통과해왔다는 이야기는 Authentication이 True라는 이야기.
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image
+  })
 
 })
+
+
+
 
 
 app.listen(port, () => {

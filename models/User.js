@@ -94,6 +94,24 @@ userSchema.methods.generateToken = function(cb){
         if(err) return cb(err) //에러가 있다면 콜백으로 에러 전달
         cb(null, user) //세이브가 잘 됐다면 에러는 없고(null) 유저 정보만 전달
     })
+}
+
+userSchema.statics.findByToken = function( token, cb ) {
+    var user = this;
+
+    //토큰을 decode한다.
+    jwt.verify(token, 'secretToken', function(err, decoded) {
+        //유저아이디를 이용해서 유저를 찾은 후
+        //클라이언트에서 가져온 token과 DB에 보관된 토큰이 일치하는지 확인
+
+        user.findOne({ "_id":decoded, "token":token }, function(err, user){
+
+            if(err) return cb(err);
+            cb(null, user)
+
+        })
+    })
+
 
 }
 
