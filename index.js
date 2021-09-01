@@ -51,7 +51,7 @@ app.post('/api/users/register', (req, res) => {
 })
 
 //로그인 라우트
-app.post('/api/users/login', (req, res) =>{
+app.post('/api/users/login', (req, res) => {
 
   //요청된 이메일을 데이터베이스에서 찾는다.
   User.findOne({ email: req.body.email }, (err, user) => {
@@ -76,7 +76,7 @@ app.post('/api/users/login', (req, res) =>{
         //400은 에러가 발생했다는 메시지
         
         //토큰을 쿠키에 저장한다.
-        res.cookie("x_auth",user.token) //x_auth라는 곳에 토큰 출력?
+        res.cookie("x_auth", user.token) //x_auth라는 곳에 토큰 출력?
         .status(200) //200은 성공했다는 메시지
         .json({ loginSuccess: true, userId: user._id})
 
@@ -107,6 +107,20 @@ app.get('/api/users/auth', auth ,(req, res) => {
 
 })
 
+
+//로그아웃 라우트
+app.get('/api/users/logout', auth, (req, res) => {
+
+  User.findOneAndUpdate({ _id: req.user._id },
+    { token: "" }
+    ,(err, user) => {
+      if(err) return res.json({ success: false, err })
+      return res.status(200).send({
+        success: true
+      })
+    })
+
+})
 
 
 
