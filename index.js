@@ -1,6 +1,6 @@
 const express = require('express') //express 모듈을 가져오기
 const app = express() //새로운 function을 이용해서 새로운 express app을 만들기
-const port = 2241 //포트 번호는 아무렇게나 해도 됨.
+const port = 2222 //포트 번호는 아무렇게나 해도 됨.
 const bodyParser = require('body-parser'); //body-parser를 가져오기. 옵션 설정이 조금 필요함
 const cookieParser = require('cookie-parser') //cookie-parser를 가져오기. 토큰을 쿠키에 저장하기 위해 필요함
 

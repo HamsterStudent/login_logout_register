@@ -61,7 +61,7 @@ userSchema.pre('save', function( next ){
                 //다시 index.js의 save로 보내기
             })
         })
-    }else {
+    } else {
         next()
     }
     
@@ -91,7 +91,7 @@ userSchema.methods.generateToken = function(cb){
 
     user.token = token //유저 토큰은 var로 정의한 토큰을 넣어줌
     user.save(function(err, user){ //유저를 저장한 후 함수 실행. 
-        if(err) return cb(err) //에러가 있다면 콜백으로 에러 전달
+        if(err) return cb(err); //에러가 있다면 콜백으로 에러 전달
         cb(null, user) //세이브가 잘 됐다면 에러는 없고(null) 유저 정보만 전달
     })
 }
