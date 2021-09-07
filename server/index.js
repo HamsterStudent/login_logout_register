@@ -32,6 +32,11 @@ app.get('/', (req, res) => {
 //function(req, res){} 형식도 되나, 간편하게 하기 위해 화살표함수로 사용한듯...
 // app.get('/', function(req, res){ res.send('Hello World!')}) //function형식
 
+//app.js에서 전송한 리퀘스트를 받는 라우트
+app.get('/api/hello', (req,res) => {
+  res.send("Starship Enterprise") //프론트에 메시지 전달
+})
+
 
 //회원가입 라우트
 app.post('/api/users/register', (req, res) => {
